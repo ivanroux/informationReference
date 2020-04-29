@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:temp/models/user_model.dart';
 import 'package:temp/pages/detail_page.dart';
+import 'package:temp/pages/search_page.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -11,11 +12,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  TextEditingController controller = TextEditingController();
-
   bool _isLoading = true;
-
-  List<User> _searchResult = [];
 
   List<User> _userDetails = [];
 
@@ -48,6 +45,21 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         title: Text('Home'),
         elevation: 0.0,
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.search),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => SearchPage(
+                    users: _userDetails,
+                  ),
+                ),
+              );
+            },
+          ),
+        ],
       ),
       body: _isLoading == true
           ? Center(
@@ -55,96 +67,38 @@ class _HomePageState extends State<HomePage> {
             )
           : Column(
               children: <Widget>[
-                Container(
-                  color: Theme.of(context).primaryColor,
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Card(
-                      child: ListTile(
-                        leading: Icon(Icons.search),
-                        title: TextField(
-                          controller: controller,
-                          decoration: InputDecoration(
-                            hintText: 'Search',
-                            border: InputBorder.none,
-                          ),
-                          onChanged: onSearchTextChanged,
-                        ),
-                        trailing: IconButton(
-                          icon: Icon(Icons.cancel),
-                          onPressed: () {
-                            controller.clear();
-                            onSearchTextChanged('');
-                          },
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
                 Expanded(
-                  child: _searchResult.length != 0 || controller.text.isNotEmpty
-                      ? ListView.builder(
-                          itemCount: _searchResult.length,
-                          itemBuilder: (context, i) {
-                            return Card(
-                              child: ListTile(
-                                leading: CircleAvatar(
-                                  backgroundImage: NetworkImage(
-                                    _searchResult[i].image,
-                                  ),
+                  child: ListView.builder(
+                    itemCount: _userDetails.length,
+                    itemBuilder: (context, index) {
+                      print(_userDetails[index].image);
+                      return Card(
+                        child: ListTile(
+                          leading: CircleAvatar(
+                            backgroundImage: NetworkImage(
+                              _userDetails[index].image,
+                            ),
+                          ),
+                          title: Text(_userDetails[index].name),
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => DetailPage(
+                                  user: _userDetails[index],
                                 ),
-                                title: Text(_searchResult[i].name),
                               ),
-                              margin: const EdgeInsets.all(0.0),
-                            );
-                          },
-                        )
-                      : ListView.builder(
-                          itemCount: _userDetails.length,
-                          itemBuilder: (context, index) {
-                            print(_userDetails[index].image);
-                            return Card(
-                              child: ListTile(
-                                leading: CircleAvatar(
-                                  backgroundImage: NetworkImage(
-                                    _userDetails[index].image,
-                                  ),
-                                ),
-                                title: Text(_userDetails[index].name),
-                                onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => DetailPage(
-                                        user: _userDetails[index],
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
-                              margin: const EdgeInsets.all(0.0),
                             );
                           },
                         ),
+                        margin: const EdgeInsets.all(0.0),
+                      );
+                    },
+                  ),
                 ),
               ],
             ),
     );
-  }
-
-  onSearchTextChanged(String text) async {
-    _searchResult.clear();
-    if (text.isEmpty) {
-      setState(() {});
-      return;
-    }
-
-    _userDetails.forEach((userDetail) {
-      if (userDetail.name.toLowerCase().contains(text))
-        _searchResult.add(userDetail);
-    });
-
-    setState(() {});
   }
 }
 
