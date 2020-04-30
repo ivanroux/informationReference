@@ -1,20 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:temp/models/user_model.dart';
-import 'package:temp/pages/detail_page.dart';
+import 'package:temp/models/original_model.dart';
 
-class SearchPage extends StatefulWidget {
-  final List<User> users;
+class SearchDetailsPage extends StatefulWidget {
+  final List<Original> originals;
 
-  SearchPage({Key key, this.users}) : super(key: key);
+  SearchDetailsPage({Key key, this.originals}) : super(key: key);
 
   @override
-  _SearchPageState createState() => _SearchPageState();
+  _SearchDetailsPageState createState() => _SearchDetailsPageState();
 }
 
-class _SearchPageState extends State<SearchPage> {
+class _SearchDetailsPageState extends State<SearchDetailsPage> {
   TextEditingController controller = TextEditingController();
 
-  List<User> _searchResult = [];
+  List<Original> _searchResult = [];
 
   @override
   Widget build(BuildContext context) {
@@ -55,22 +54,7 @@ class _SearchPageState extends State<SearchPage> {
                       itemBuilder: (context, i) {
                         return Card(
                           child: ListTile(
-                            leading: CircleAvatar(
-                              backgroundImage: NetworkImage(
-                                _searchResult[i].image,
-                              ),
-                            ),
-                            title: Text(_searchResult[i].name),
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => DetailPage(
-                                    user: _searchResult[i],
-                                  ),
-                                ),
-                              );
-                            },
+                            title: Text(_searchResult[i].guidelineText),
                           ),
                           margin: const EdgeInsets.all(0.0),
                         );
@@ -94,10 +78,10 @@ class _SearchPageState extends State<SearchPage> {
       return;
     }
 
-    widget.users.forEach((userDetail) {
-      if (userDetail.name.toLowerCase().contains(
+    widget.originals.forEach((original) {
+      if (original.guidelineText.toLowerCase().contains(
             text.toLowerCase(),
-          )) _searchResult.add(userDetail);
+          )) _searchResult.add(original);
     });
 
     setState(() {});

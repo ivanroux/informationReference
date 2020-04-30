@@ -26,6 +26,7 @@ dependencies:
   http: ^0.12.1
   cached_network_image: ^2.1.0+1
   connectivity: ^0.4.8+2
+  provider: ^2.0.1
 
 
 dev_dependencies:
