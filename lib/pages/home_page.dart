@@ -1,12 +1,14 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import 'package:temp/models/user_model.dart';
 import 'package:temp/pages/detail_page.dart';
 import 'package:temp/pages/search_page.dart';
 import 'package:temp/utils/utils.dart';
+import 'package:temp/widgets/cached_home_widget.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -17,6 +19,8 @@ class _HomePageState extends State<HomePage> {
   bool _isLoading = true;
 
   List<User> _userDetails = [];
+
+  final usersBox = Hive.box('user');
 
   // Get json result and convert it to model. Then add
   Future<Null> getUserDetails() async {
@@ -34,11 +38,21 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+
+  void cacheData() {
+    _userDetails.map((user) => usersBox.add(user)).toList();
+  }
+
   @override
   void initState() {
-    super.initState();
-
     getUserDetails();
+
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 
   @override
@@ -48,6 +62,9 @@ class _HomePageState extends State<HomePage> {
 
     if (connectionStatus == ConnectivityStatus.WiFi ||
         connectionStatus == ConnectivityStatus.Cellular) {
+      if (usersBox.isEmpty) {
+        cacheData();
+      }
       return Scaffold(
         appBar: AppBar(
           title: Text('Home'),
@@ -78,7 +95,7 @@ class _HomePageState extends State<HomePage> {
                     child: ListView.builder(
                       itemCount: _userDetails.length,
                       itemBuilder: (context, index) {
-                        print(_userDetails[index].image);
+                        // cacheData(_userDetails[index]);
                         return Card(
                           child: ListTile(
                             leading: CircleAvatar(
@@ -107,15 +124,7 @@ class _HomePageState extends State<HomePage> {
               ),
       );
     }
-    return Scaffold(
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          LinearProgressIndicator(),
-          Text("No network availaible, please connect to a network"),
-        ],
-      ),
-    );
+    return CachedHomeWidget(usersBox: usersBox);
   }
 }
 
