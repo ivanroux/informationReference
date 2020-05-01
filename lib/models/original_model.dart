@@ -1,15 +1,43 @@
+import 'package:hive/hive.dart';
+
+part 'original_model.g.dart';
+
+@HiveType(typeId: 1)
 class Original {
+  @HiveField(0)
   int guidlineID;
+
+  @HiveField(1)
   String guidlineName;
+
+  @HiveField(2)
   String guidelinePicture;
+
+  @HiveField(3)
   String guidelineText;
+
+  @HiveField(4)
   String guidelineCompliance;
+
+  @HiveField(5)
   String pictureID1;
+
+  @HiveField(6)
   String pictureURL1;
+
+  @HiveField(7)
   String pictureName1;
+
+  @HiveField(8)
   String pictureCompliance1;
+
+  @HiveField(9)
   String pictureComment1;
+
+  @HiveField(10)
   String pictureGuideline1;
+
+  @HiveField(11)
   String pictureAlignemnt1;
 
   Original(

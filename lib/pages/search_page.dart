@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:temp/models/user_model.dart';
+import 'package:temp/pages/detail_page.dart';
 
 class SearchPage extends StatefulWidget {
   final List<User> users;
@@ -60,6 +61,16 @@ class _SearchPageState extends State<SearchPage> {
                               ),
                             ),
                             title: Text(_searchResult[i].name),
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => DetailPage(
+                                    user: _searchResult[i],
+                                  ),
+                                ),
+                              );
+                            },
                           ),
                           margin: const EdgeInsets.all(0.0),
                         );

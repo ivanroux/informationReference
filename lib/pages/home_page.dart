@@ -1,10 +1,12 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+import 'package:hive/hive.dart';
+import 'package:provider/provider.dart';
 import 'package:temp/models/user_model.dart';
-import 'package:temp/pages/detail_page.dart';
-import 'package:temp/pages/search_page.dart';
+import 'package:temp/services/user_repository.dart';
+
+import 'package:temp/utils/utils.dart';
+import 'package:temp/widgets/cached_home_widget.dart';
+import 'package:temp/widgets/network_home_widget.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -12,95 +14,46 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  bool _isLoading = true;
+  UserRepository _userRepository = UserRepository();
 
   List<User> _userDetails = [];
 
-  // Get json result and convert it to model. Then add
-  Future<Null> getUserDetails() async {
-    final response = await http.get(url);
-    final responseJson = json.decode(response.body);
+  final usersBox = Hive.box('user');
 
-    if (responseJson != null) {
-      _isLoading = false;
-      var users = responseJson["user"];
-      setState(() {
-        for (Map user in users) {
-          _userDetails.add(User.fromJson(user));
-        }
-      });
-    }
+  getUsers() async {
+    var users = await _userRepository.getDetails();
+    setState(() {
+      for (Map user in users) {
+        _userDetails.add(User.fromJson(user));
+      }
+    });
+  }
+
+  void cacheUsers() {
+    _userDetails.map((user) => usersBox.add(user)).toList();
   }
 
   @override
   void initState() {
+    getUsers();
     super.initState();
-
-    getUserDetails();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Home'),
-        elevation: 0.0,
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.search),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => SearchPage(
-                    users: _userDetails,
-                  ),
-                ),
-              );
-            },
-          ),
-        ],
-      ),
-      body: _isLoading == true
-          ? Center(
-              child: CircularProgressIndicator(),
-            )
-          : Column(
-              children: <Widget>[
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: _userDetails.length,
-                    itemBuilder: (context, index) {
-                      print(_userDetails[index].image);
-                      return Card(
-                        child: ListTile(
-                          leading: CircleAvatar(
-                            backgroundImage: NetworkImage(
-                              _userDetails[index].image,
-                            ),
-                          ),
-                          title: Text(_userDetails[index].name),
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => DetailPage(
-                                  user: _userDetails[index],
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                        margin: const EdgeInsets.all(0.0),
-                      );
-                    },
-                  ),
-                ),
-              ],
-            ),
-    );
+    // Get our connection status from the provider
+    var connectionStatus = Provider.of<ConnectivityStatus>(context);
+
+    if (connectionStatus == ConnectivityStatus.WiFi ||
+        connectionStatus == ConnectivityStatus.Cellular) {
+      if (usersBox.isEmpty) {
+        cacheUsers();
+      }
+      return NetworkHomeWidget(
+        userDetails: _userDetails,
+        userRepository: _userRepository,
+      );
+    }
+    return CachedHomeWidget(usersBox: usersBox);
   }
 }
-
-final String url =
-    'https://script.googleusercontent.com/macros/echo?user_content_key=UOm84kh88fLDcBxfgyk1aSyRqy1ORIp4XyksXyowMHu-vIX70ncxw4xmBAQbGcBsmmDEwWTMWKwLOpQUNykqagN_j7yjXHyIm5_BxDlH2jW0nuo2oDemN9CCS2h10ox_1xSncGQajx_ryfhECjZEnD6uLUp5LUx_GYHsDpqM186qrJOxjNgLYnPb2feoVYuMERx0bBKNW74YzdEizbMkQ9pytj_A4aoE&lib=Mdw3zAyjVJJbKrUzgJvN8PgqwFLz7E46Y';
