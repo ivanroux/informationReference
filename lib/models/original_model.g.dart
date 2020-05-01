@@ -8,6 +8,9 @@ part of 'original_model.dart';
 
 class OriginalAdapter extends TypeAdapter<Original> {
   @override
+  final typeId = 1;
+
+  @override
   Original read(BinaryReader reader) {
     var numOfFields = reader.readByte();
     var fields = <int, dynamic>{
@@ -58,7 +61,4 @@ class OriginalAdapter extends TypeAdapter<Original> {
       ..writeByte(11)
       ..write(obj.pictureAlignemnt1);
   }
-
-  @override
-  int get typeId => 1;
 }

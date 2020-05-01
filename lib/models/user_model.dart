@@ -3,7 +3,7 @@ import 'package:temp/models/original_model.dart';
 
 part 'user_model.g.dart';
 
-@HiveType()
+@HiveType(typeId: 0)
 class User {
   @HiveField(0)
   String name;
@@ -11,7 +11,6 @@ class User {
   @HiveField(1)
   String image;
 
-  // @HiveField(2)
   List<Original> original;
 
   @HiveField(2)

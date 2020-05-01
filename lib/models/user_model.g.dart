@@ -8,6 +8,9 @@ part of 'user_model.dart';
 
 class UserAdapter extends TypeAdapter<User> {
   @override
+  final typeId = 0;
+
+  @override
   User read(BinaryReader reader) {
     var numOfFields = reader.readByte();
     var fields = <int, dynamic>{
@@ -34,7 +37,4 @@ class UserAdapter extends TypeAdapter<User> {
       ..writeByte(3)
       ..write(obj.season);
   }
-
-  @override
-  int get typeId => 0;
 }

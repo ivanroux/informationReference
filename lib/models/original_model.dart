@@ -2,7 +2,7 @@ import 'package:hive/hive.dart';
 
 part 'original_model.g.dart';
 
-@HiveType()
+@HiveType(typeId: 1)
 class Original {
   @HiveField(0)
   int guidlineID;
